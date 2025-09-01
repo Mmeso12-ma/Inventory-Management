@@ -33,3 +33,15 @@ def create_transaction(db: Session, transaction:schemas.TransactionCreate):
     return db_transaction
 def get_transactions(db:Session):
     return db.query(models.Transaction).all()
+def get_product_stock(db: Session, product_id:int):
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not product:
+        return None
+    #sum all trasactions (in=positive, out=negative)
+    stock = 0
+    for t in product.transactions:
+        if t.type == 'in':
+            stock += t.quantity
+        elif t.type == 'out':
+            stock -= t.quantity
+    return {'product_id': product.id, 'product_name': product.name, 'stock': stock}
