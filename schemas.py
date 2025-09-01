@@ -21,4 +21,21 @@ class Transaction(TransactionBase):
     timestamp: datetime 
     class Config:
         orm_mode = True
+class CategoryBase(BaseModel):
+    name: str
+class CategoryCreate(CategoryBase):
+    pass
+class Category(CategoryBase):
+    id: int
+    class Config:
+        orm_mode = True
+class SupplierBase(BaseModel):
+    name: str
+    contact_info: int
+class SupplierCreate(SupplierBase):
+    pass    
+class Supplier(SupplierBase):
+    id: int
+    class Config:
+        orm_mode = True
     
