@@ -41,3 +41,9 @@ def create_transaction(transaction: schemas.TransactionCreate, db: Session = Dep
 @app.get("/transactions/", response_model=list[schemas.Transaction])
 def read_transactions(db: Session = Depends(get_db)):
     return crud.get_transactions(db)
+@app.get("/products/{product_id}/stock")
+def get_product_stock(product_id: int, db: Session = Depends(get_db)):
+    stock_info = crud.get_product_stock(db=db, product_id=product_id)
+    if not stock_info:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return stock_info
