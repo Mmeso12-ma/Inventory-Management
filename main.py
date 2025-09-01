@@ -47,3 +47,6 @@ def get_product_stock(product_id: int, db: Session = Depends(get_db)):
     if not stock_info:
         raise HTTPException(status_code=404, detail="Product not found")
     return stock_info
+@app.get("/invetory/")
+def get_inventory(db: Session = Depends(get_db)):
+    return crud.get_all_product_stocks(db)

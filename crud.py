@@ -45,3 +45,15 @@ def get_product_stock(db: Session, product_id:int):
         elif t.type == 'out':
             stock -= t.quantity
     return {'product_id': product.id, 'product_name': product.name, 'stock': stock}
+def get_all_product_stocks(db: Session):
+    products = db.query(models.Product).all()
+    stock_report = []
+    for product in products:
+        stock = 0
+        for t in product.transactions:
+            if t.type == 'in':
+                stock += t.quantity
+            elif t.type == 'out':
+                stock -= t.quantity
+        stock_report.append({'product_id': product.id, 'name': product.name, 'stock': stock})
+    return stock_report
