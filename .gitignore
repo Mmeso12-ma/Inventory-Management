@@ -1,0 +1,19 @@
+#python
+__pyache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.postgres
+#virtualenv
+venv/
+env/
+#env files
+.env
+#ides
+.vscode/
+.idea/
+*.swp
+#os files
+.DS_Store
+Thumbs.db
