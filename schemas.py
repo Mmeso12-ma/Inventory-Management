@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 class ProductBase(BaseModel):
     name: str
@@ -38,4 +38,13 @@ class Supplier(SupplierBase):
     id: int
     class Config:
         orm_mode = True
-    
+class UserBase(BaseModel):
+    email:EmailStr
+class UserCreate(UserBase):
+    password: str
+class UserOut(UserBase):
+    id: int
+    is_active:bool
+    email: EmailStr
+    class Config:
+        orm_mode = True    

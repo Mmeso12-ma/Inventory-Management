@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime, Boolean
 from database import Base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -32,5 +32,13 @@ class Supplier(Base):
     name = Column(String, index=True)
     contact_info = Column(Integer, index=True)
     products = relationship("Product", secondary="product_suppliers", back_populates="suppliers")
+class User(Base):
+    __tablename__= 'users'
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique = True, index = True, nullable=False)
+    hashed_password= Column(String, nullable=False)
+    is_active = Column(Boolean, default = True)
+    date_created= Column(DateTime, default = datetime.utcnow)
+    email= Column(String, unique= True, nullable= False, index= True)
 
 
