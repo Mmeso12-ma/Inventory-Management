@@ -40,7 +40,10 @@ class Supplier(SupplierBase):
         orm_mode = True
 class UserBase(BaseModel):
     email:EmailStr
+   
 class UserCreate(UserBase):
+    email: EmailStr
+    username: str
     password: str
 class UserOut(UserBase):
     id: int
@@ -48,6 +51,8 @@ class UserOut(UserBase):
     email: EmailStr
     class Config:
         from_attributes = True
+ 
+
 class Token(BaseModel):
     access_token: str
-    token_type: str = "bearer" 
+    token_type: str
