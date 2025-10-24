@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import  Product, Category, Supplier, Transaction, User
 from schemas import ProductCreate, Product
-from security import oauth2_scheme, decode_token
+from security import oauth2_scheme, decode_token, require_role
 router = APIRouter(prefix="/products", tags=["products"])
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     payload = decode_token(token)
@@ -15,7 +15,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     return user
 # Product Endpoints
 @router.post("/", response_model=Product)
-def create_product(product: ProductCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_product(product: ProductCreate, db: Session = Depends(get_db), current_user: User = Depends(require_role(["admin", "manager"]))):
     new_product = Product(name=product.name, description=product.description, price=product.price, user_id=current_user.id)
     db.add(new_product)
     db.commit()

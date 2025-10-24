@@ -4,6 +4,7 @@ class ProductBase(BaseModel):
     name: str
     description: str | None = None
     price: float
+    quantity: int = 0
 class ProductCreate(ProductBase):
     pass
 class Product(ProductBase):
@@ -45,10 +46,12 @@ class UserCreate(UserBase):
     email: EmailStr
     username: str
     password: str
+    role : str = "clerk"
 class UserOut(UserBase):
     id: int
     is_active:bool
     email: EmailStr
+    role:str
     class Config:
         from_attributes = True
  

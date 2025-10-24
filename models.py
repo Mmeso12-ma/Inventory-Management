@@ -1,3 +1,4 @@
+from email.policy import default
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime, Boolean, Table
 from database import Base
 from sqlalchemy.orm import relationship
@@ -33,6 +34,7 @@ class Product(Base):
     transaction = relationship("Transaction", back_populates="products")
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="products")
+    quantity=Column(Integer, default=0)
 class Transaction(Base):
     __tablename__ = 'transaction'
     id = Column(Integer, primary_key=True, index=True)
@@ -51,5 +53,6 @@ class User(Base):
     date_created= Column(DateTime, default = datetime.utcnow)
     email= Column(String, unique= True, nullable= False, index= True)
     products = relationship("Product", back_populates="user")
+    role= Column(String, default="clerk")
 
 

@@ -7,7 +7,7 @@ from database import SessionLocal, engine, Base
 from security import hash_password, verify_password, create_access_token, decode_token
 from datetime import datetime, timedelta
 from auth import router as auth_router
-from products import router as products_router
+from products import require_role, router as products_router
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Inventory Management API")
 
@@ -20,7 +20,7 @@ def get_db():
         db.close()
             #Transaction Endpoints
 @app.post("/transactions/", response_model=schemas.Transaction)
-def create_transaction(transaction: schemas.TransactionCreate, db: Session = Depends(get_db)):
+def create_transaction(transaction: schemas.TransactionCreate, db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["admin", "manager", "clerk"]))):
     return crud.create_transaction(db=db, transaction=transaction)
 @app.get("/transactions/", response_model=list[schemas.Transaction])
 def read_transactions(db: Session = Depends(get_db)):
