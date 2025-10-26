@@ -1,21 +1,15 @@
+from auth import settings
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
 from models import  Product, Category, Supplier, Transaction, User
 from schemas import ProductCreate, Product
-from security import oauth2_scheme, decode_token, require_role
+from security import oauth2_scheme, decode_token, require_role, get_current_user
 router = APIRouter(prefix="/products", tags=["products"])
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    payload = decode_token(token)
-    if not payload:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    user= db.query(User).filter(User.email == payload.get("sub")).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
-    return user
+
 # Product Endpoints
 @router.post("/", response_model=Product)
-def create_product(product: ProductCreate, db: Session = Depends(get_db), current_user: User = Depends(require_role(["admin", "manager"]))):
+def create_product(product: ProductCreate, db: Session = Depends(get_db), current_user: User = Depends(require_role(["admin", "manager", "clerk"]))):
     new_product = Product(name=product.name, description=product.description, price=product.price, user_id=current_user.id)
     db.add(new_product)
     db.commit()

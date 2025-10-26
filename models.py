@@ -43,6 +43,7 @@ class Transaction(Base):
     type = Column(String, nullable=False)  # 'purchase' or 'sale'
     timestamp = Column(DateTime, default=datetime.utcnow)
     contact_info = Column(Integer, index=True)
+    total_price = Column(Float, nullable=False)
     products = relationship("Product", back_populates="transaction")
 class User(Base):
     __tablename__= 'users'
