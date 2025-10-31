@@ -5,7 +5,7 @@ class ProductBase(BaseModel):
     name: str
     description: str | None = None
     price: float
-    quantity: int = 0
+    quantity: int 
 class ProductCreate(ProductBase):
     pass
 class Product(ProductBase):
@@ -17,6 +17,7 @@ class TransactionBase(BaseModel):
     quantity: int
     type: str  # 'purchase' or 'sale'
     total_price: float
+    contact_info: int
 class TransactionCreate(TransactionBase):
     pass
 class TransactionResponse(TransactionBase):
@@ -48,7 +49,7 @@ class UserCreate(UserBase):
     email: EmailStr
     username: str
     password: str
-    role : str = "clerk"
+    role : str 
 class UserOut(UserBase):
     id: int
     is_active:bool

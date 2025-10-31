@@ -37,23 +37,29 @@ def get_product_stock(db: Session, product_id:int):
     product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not product:
         return None
+    total_in = 0
+    total_out = 0
     #sum all trasactions (in=positive, out=negative)
-    stock = 0
-    for t in product.transactions:
-        if t.type == 'in':
-            stock += t.quantity
+
+    for t in product.transaction:
+        if t.type == 'purchase':
+            total_in += t.quantity
         elif t.type == 'out':
-            stock -= t.quantity
-    return {'product_id': product.id, 'product_name': product.name, 'stock': stock}
+            total_out -= t.quantity
+    stock = product.quantity if getattr (product, "quantity", None) is not None else (total_in - total_out)
+    return {'product_id': product.id, 'product_name': product.name, 'stock': stock, 'total_in': total_in, 'total_out': total_out}
 def get_all_product_stocks(db: Session):
     products = db.query(models.Product).all()
     stock_report = []
     for product in products:
-        stock = 0
-        for t in product.transactions:
+        total_in = 0
+        total_out = 0
+
+        for t in product.transaction:
             if t.type == 'in':
                 stock += t.quantity
             elif t.type == 'out':
                 stock -= t.quantity
+            stock = product.quantity if getattr (product, "quantity", None) is not None else (total_in - total_out)
         stock_report.append({'product_id': product.id, 'name': product.name, 'stock': stock})
     return stock_report

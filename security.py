@@ -60,8 +60,10 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     payload = decode_token(token, settings.SECRET_KEY, settings.ALGORITHM)
     if not payload:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    email: str = payload.get("sub")
-    user = db.query(User).filter(User.email == email).first()
+    username: str | None = payload.get("sub")
+    if not username:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
+    user = db.query(User).filter(User.username == username).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user

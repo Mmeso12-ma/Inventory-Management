@@ -34,7 +34,7 @@ class Product(Base):
     transaction = relationship("Transaction", back_populates="products")
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="products")
-    quantity=Column(Integer, default=0)
+    quantity=Column(Integer)
 class Transaction(Base):
     __tablename__ = 'transaction'
     id = Column(Integer, primary_key=True, index=True)
@@ -54,6 +54,6 @@ class User(Base):
     date_created= Column(DateTime, default = datetime.utcnow)
     email= Column(String, unique= True, nullable= False, index= True)
     products = relationship("Product", back_populates="user")
-    role= Column(String, default="clerk")
+    role= Column(String)
 
 
