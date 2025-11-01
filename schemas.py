@@ -1,4 +1,5 @@
 from functools import total_ordering
+from os import name
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 class ProductBase(BaseModel):
@@ -25,21 +26,22 @@ class TransactionResponse(TransactionBase):
     timestamp: datetime 
     class Config:
         orm_mode = True
-class CategoryBase(BaseModel):
+
+class CategoryCreate(BaseModel):
     name: str
-class CategoryCreate(CategoryBase):
-    pass
-class Category(CategoryBase):
+class CategoryResponse(BaseModel):
     id: int
+    name: str
     class Config:
         orm_mode = True
-class SupplierBase(BaseModel):
+
+class SupplierCreate(BaseModel):
+    name: str
+    contact_info : int
+class SupplierResponse(BaseModel):
+    id: int
     name: str
     contact_info: int
-class SupplierCreate(SupplierBase):
-    pass    
-class Supplier(SupplierBase):
-    id: int
     class Config:
         orm_mode = True
 class UserBase(BaseModel):

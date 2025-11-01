@@ -9,10 +9,13 @@ from datetime import datetime, timedelta
 from auth import router as auth_router
 from products import require_role, router as products_router
 from transaction import router as transaction_router
+from categories import router as category_router
 import transaction
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Inventory Management API")
-
+@app.get("/")
+def read_root():
+    return {"Inventory Management API"}
 #Dependency to get DB session
 def get_db():
     db = SessionLocal()
@@ -36,4 +39,5 @@ def get_inventory(db: Session = Depends(get_db)):
 app.include_router(auth_router)
 app.include_router(products_router)
 app.include_router(transaction_router)
+app.include_router(category_router)
 
