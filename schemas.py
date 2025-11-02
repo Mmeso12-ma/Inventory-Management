@@ -18,7 +18,7 @@ class TransactionBase(BaseModel):
     quantity: int
     type: str  # 'purchase' or 'sale'
     total_price: float
-    contact_info: int
+    contact_info: str
 class TransactionCreate(TransactionBase):
     pass
 class TransactionResponse(TransactionBase):
@@ -28,6 +28,7 @@ class TransactionResponse(TransactionBase):
         orm_mode = True
 
 class CategoryCreate(BaseModel):
+    id: int
     name: str
 class CategoryResponse(BaseModel):
     id: int
@@ -37,11 +38,11 @@ class CategoryResponse(BaseModel):
 
 class SupplierCreate(BaseModel):
     name: str
-    contact_info : int
+    contact_info : str
 class SupplierResponse(BaseModel):
     id: int
     name: str
-    contact_info: int
+    contact_info: str | None = None
     class Config:
         orm_mode = True
 class UserBase(BaseModel):

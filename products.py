@@ -19,16 +19,16 @@ def create_product(product: ProductCreate, db: Session = Depends(get_db), curren
 def read_products(db:Session = Depends(get_db)):
     products = db.query(ProductSchema).all()
     return products
-@router.get("/{product_id}", response_model=ProductSchema)
-def read_product(product_id: int, db: Session = Depends(get_db)):
-    product = db.query(ProductModel).get(product_id)
+@router.get("/{product_name}", response_model=ProductSchema)
+def read_product(product_name: str, db: Session = Depends(get_db)):
+    product =db.query(ProductModel).filter(ProductModel.name == product_name).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
-@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_product(product_id: int, db: Session = Depends(get_db), current_user:
+@router.delete("/{product_name}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_product(product_name: str, db: Session = Depends(get_db), current_user:
                     User = Depends(get_current_user)):
-        product = db.query(ProductModel).get(product_id)
+        product = db.query(ProductModel).filter(ProductModel.name == product_name).first()
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
         if product.user_id != current_user.id:
@@ -37,10 +37,10 @@ def delete_product(product_id: int, db: Session = Depends(get_db), current_user:
         db.commit()
         return 
 # 204 No Content
-@router.put("/{product_id}", response_model=ProductSchema)
-def update_product(product_id: int, updated_product: ProductCreate, db: Session = Depends
+@router.put("/{product_name}", response_model=ProductSchema)
+def update_product(product_name: str, updated_product: ProductCreate, db: Session = Depends
                     (get_db), current_user: User = Depends(get_current_user)):
-        product = db.query(ProductModel).get(product_id)
+        product = db.query(ProductModel).filter(ProductModel.name == product_name).first()
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
         if product.user_id != current_user.id:

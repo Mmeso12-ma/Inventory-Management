@@ -29,7 +29,7 @@ def update_category(category_name: str, updated: CategoryCreate, db:Session = De
     category = db.query(Category).filter(Category.name == category_name).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
-    category.id=updated.id
+    category.name=updated.name
     db.commit()
     db.refresh(category)
     return category

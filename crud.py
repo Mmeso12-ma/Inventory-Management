@@ -9,17 +9,17 @@ def create_product(db: Session, product:schemas.ProductCreate):
     db.commit()
     db.refresh(db_product)
     return db_product
-def update_product(db: Session, product_id:int, product:schemas.ProductCreate):
-    db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
+def update_product(db: Session, product_name:str, product:schemas.ProductCreate):
+    db_product = db.query(models.Product).filter(models.Product.name == product_name).first()
     if db_product:
-        db_product.name = product.name
+        db_product.id = product.id
         db_product.description = product.description
         db_product.price = product.price
         db.commit()
         db.refresh(db_product)
     return db_product
-def delete_product(db: Session, product_id:int):
-    db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
+def delete_product(db: Session, product_name:str):
+    db_product = db.query(models.Product).filter(models.Product.name == product_name).first()
     if db_product:
         db.delete(db_product)
         db.commit()
@@ -33,8 +33,8 @@ def create_transaction(db: Session, transaction:schemas.TransactionCreate):
     return db_transaction
 def get_transactions(db:Session):
     return db.query(models.Transaction).all()
-def get_product_stock(db: Session, product_id:int):
-    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+def get_product_stock(db: Session, product_name:str):
+    product = db.query(models.Product).filter(models.Product.name == product_name).first()
     if not product:
         return None
     total_in = 0

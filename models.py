@@ -19,7 +19,7 @@ class Supplier(Base):
     __tablename__ = 'suppliers'
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    contact_info = Column(Integer, index=True)
+    contact_info = Column(String, index=True)
     products = relationship("Product",back_populates="suppliers")
 class Product(Base):
     __tablename__ = 'products'
@@ -42,7 +42,7 @@ class Transaction(Base):
     quantity = Column(Integer, nullable=False)
     type = Column(String, nullable=False)  # 'purchase' or 'sale'
     timestamp = Column(DateTime, default=datetime.utcnow)
-    contact_info = Column(Integer, index=True)
+    contact_info = Column(String, index=True)
     total_price = Column(Float, nullable=False)
     products = relationship("Product", back_populates="transaction")
 class User(Base):
