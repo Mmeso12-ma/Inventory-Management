@@ -27,10 +27,10 @@ def get_db():
             #Transaction Endpoints
 
 
-@app.get("/products/{product_id}/stock")
-def get_product_stock(product_id: int,
+@app.get("/products/{product_name}/stock")
+def get_product_stock(product_name: str,
     db: Session = Depends(get_db)):
-    stock_info = crud.get_product_stock(db=db, product_id=product_id)
+    stock_info = crud.get_product_stock(db=db, product_name=product_name)
     if not stock_info:
         raise HTTPException(status_code=404, detail="Product not found")
     return stock_info
