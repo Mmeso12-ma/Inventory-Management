@@ -1,3 +1,4 @@
+import email
 from functools import total_ordering
 from os import name
 from pydantic import BaseModel, EmailStr
@@ -19,6 +20,7 @@ class TransactionBase(BaseModel):
     type: str  # 'purchase' or 'sale'
     total_price: float
     contact_info: str
+    timestamp: datetime | None = None
 class TransactionCreate(TransactionBase):
     pass
 class TransactionResponse(TransactionBase):
@@ -35,7 +37,11 @@ class CategoryResponse(BaseModel):
     name: str
     class Config:
         orm_mode = True
-
+class SupplierBase(BaseModel):
+    name: str
+    contact_info : str | None = None
+    email: EmailStr
+    address: str | None = None
 class SupplierCreate(BaseModel):
     name: str
     contact_info : str
