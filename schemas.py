@@ -1,8 +1,10 @@
 import email
 from functools import total_ordering
 from os import name
+from tkinter.messagebox import NO
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from typing import Optional
 class ProductBase(BaseModel):
     name: str
     description: str | None = None
@@ -19,7 +21,7 @@ class TransactionBase(BaseModel):
     quantity: int
     type: str  # 'purchase' or 'sale'
     total_price: float
-    contact_info: str
+    contact_info: Optional[str] = None
     timestamp: datetime | None = None
 class TransactionCreate(TransactionBase):
     pass
