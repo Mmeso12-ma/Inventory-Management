@@ -11,6 +11,7 @@ from products import require_role, router as products_router
 from transaction import router as transaction_router
 from categories import router as category_router
 from suppliers import router as suppliers_router
+from report import router as report_router
 import transaction
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Inventory Management API")
@@ -42,3 +43,4 @@ app.include_router(products_router)
 app.include_router(transaction_router)
 app.include_router(category_router)
 app.include_router(suppliers_router)
+app.include_router(report_router)

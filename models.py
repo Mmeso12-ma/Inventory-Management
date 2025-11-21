@@ -15,12 +15,14 @@ class Category(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     products = relationship("Product", secondary=product_category, back_populates="category")
+    created_at= Column(DateTime(timezone=True), default=datetime.utcnow)
 class Supplier(Base):
     __tablename__ = 'suppliers'
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     contact_info = Column(String, index=True)
     products = relationship("Product",back_populates="suppliers")
+    email=(Column(String, unique= True, nullable= False, index= True))
 class Product(Base):
     __tablename__ = 'products'
     id = Column(Integer, primary_key=True, index=True)
@@ -35,6 +37,7 @@ class Product(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="products")
     quantity=Column(Integer)
+    created_at= Column(DateTime(timezone=True), default=datetime.utcnow)
 class Transaction(Base):
     __tablename__ = 'transaction'
     id = Column(Integer, primary_key=True, index=True)
@@ -54,6 +57,6 @@ class User(Base):
     date_created= Column(DateTime, default = datetime.utcnow)
     email= Column(String, unique= True, nullable= False, index= True)
     products = relationship("Product", back_populates="user")
-    role= Column(String)
+    role= Column(String, nullable= False, default= 'clerk')
 
 

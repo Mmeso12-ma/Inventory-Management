@@ -6,7 +6,9 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
 from database import Base, engine
-
+import categories
+import suppliers
+import transaction
 from alembic import context
 
 # this is the Alembic Config object, which provides
