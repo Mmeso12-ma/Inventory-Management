@@ -5,19 +5,21 @@ from tkinter.messagebox import NO
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
+from datetime import datetime
 class ProductBase(BaseModel):
     name: str
     description: str | None = None
     price: float
-    quantity: int 
+    quantity: int = 0
 class ProductCreate(ProductBase):
     pass
 class Product(ProductBase):
     id: int
+    created_at: Optional[datetime] = None
     class Config:
-        orm_mode = True
+        from_attributes = True
 class TransactionBase(BaseModel):
-    product_id: int
+    product_name: str
     quantity: int
     type: str  # 'purchase' or 'sale'
     total_price: float
@@ -27,18 +29,17 @@ class TransactionCreate(TransactionBase):
     pass
 class TransactionResponse(TransactionBase):
     id: int
-    timestamp: datetime 
+    timestamp: datetime | None = None
     class Config:
-        orm_mode = True
+        from_attribues = True
 
 class CategoryCreate(BaseModel):
-    id: int
     name: str
 class CategoryResponse(BaseModel):
     id: int
     name: str
     class Config:
-        orm_mode = True
+        from_attributes = True
 class SupplierBase(BaseModel):
     name: str
     contact_info : str | None = None
@@ -52,7 +53,7 @@ class SupplierResponse(BaseModel):
     name: str
     contact_info: str | None = None
     class Config:
-        orm_mode = True
+        from_attributes = True
 class UserBase(BaseModel):
     email:EmailStr
    

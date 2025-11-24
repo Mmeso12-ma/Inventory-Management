@@ -1,3 +1,4 @@
+from statistics import quantiles
 from auth import settings
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -10,7 +11,13 @@ router = APIRouter(prefix="/products", tags=["products"])
 # Product Endpoints
 @router.post("/", response_model=ProductSchema)
 def create_product(product: ProductCreate, db: Session = Depends(get_db), current_user: User = Depends(require_role(["admin", "manager", "clerk"]))):
-    new_product = ProductModel(name=product.name, description=product.description, price=product.price, user_id=current_user.id)
+    try:
+         qty = int(product.quantity)
+    except(TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Quantity must be an integer")
+    if qty < 0:
+        raise HTTPException(status_code=400, detail="Quantity cannot be negative")
+    new_product = ProductModel(name=product.name, description=product.description, price=product.price,quantity=qty, user_id=current_user.id)
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
@@ -22,6 +29,8 @@ def read_products(db:Session = Depends(get_db)):
 @router.get("/{product_name}", response_model=ProductSchema)
 def read_product(product_name: str, db: Session = Depends(get_db)):
     product =db.query(ProductModel).filter(ProductModel.name == product_name).first()
+    if getattr(product, "quantity", None) is None:
+             product.quantity = 0
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
@@ -31,23 +40,21 @@ def delete_product(product_name: str, db: Session = Depends(get_db), current_use
         product = db.query(ProductModel).filter(ProductModel.name == product_name).first()
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
-        if product.user_id != current_user.id:
+        if product.user!= current_user:
             raise HTTPException(status_code=403, detail="Not authorized to delete this product")
         db.delete(product)
         db.commit()
         return 
 # 204 No Content
 @router.put("/{product_name}", response_model=ProductSchema)
-def update_product(product_name: str, updated_product: ProductCreate, db: Session = Depends
-                    (get_db), current_user: User = Depends(get_current_user)):
+def update_product(product_name: str, updated_product: ProductCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
         product = db.query(ProductModel).filter(ProductModel.name == product_name).first()
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
-        if product.user_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to update this product")
-        product.name = updated_product.name
-        product.description = updated_product.description
-        product.price = updated_product.price
+        setattr(product, "name", updated_product.name)
+        setattr(product, "description", updated_product.description or "")
+        setattr(product, "price", updated_product.price)
+        setattr(product, "quantity", updated_product.quantity)
         db.commit()
         db.refresh(product)
         return product

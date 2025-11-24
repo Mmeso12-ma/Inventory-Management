@@ -18,9 +18,9 @@ def create_category(category: CategoryCreate, db: Session= Depends(get_db)):
 @router.get("/", response_model=List[CategoryResponse])
 def get_categories(db: Session = Depends(get_db)):
     return db.query(Category).all()
-@router.get("/{category_id}", response_model=CategoryResponse)
-def get_category(category_id: int, db: Session = Depends(get_db)):
-    category=db.query(Category).filter(Category.id == category_id).first()
+@router.get("/{category_name}", response_model=CategoryResponse)
+def get_category(category_name: str, db: Session = Depends(get_db)):
+    category=db.query(Category).filter(Category.name == category_name).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
     return category

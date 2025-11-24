@@ -36,17 +36,17 @@ class Product(Base):
     transaction = relationship("Transaction", back_populates="products")
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="products")
-    quantity=Column(Integer)
+    quantity=Column(Integer, nullable= False,  default=0)
     created_at= Column(DateTime(timezone=True), default=datetime.utcnow)
 class Transaction(Base):
     __tablename__ = 'transaction'
     id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
+    product_name = Column(String, ForeignKey('products.name'), nullable=True)
     quantity = Column(Integer, nullable=False)
     type = Column(String, nullable=False)  # 'purchase' or 'sale'
     timestamp = Column(DateTime, default=datetime.utcnow)
     contact_info = Column(String, index=True)
-    total_price = Column(Float, nullable=False)
+    total_price = Column(Float, nullable=True)
     products = relationship("Product", back_populates="transaction")
 class User(Base):
     __tablename__= 'users'

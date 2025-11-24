@@ -1,8 +1,8 @@
-"""initial migration
+"""initial
 
-Revision ID: 42f0241a1907
-Revises: 
-Create Date: 2025-10-22 21:05:24.331458
+Revision ID: 23b5363994d5
+Revises: 559247d9576b
+Create Date: 2025-11-14 10:32:07.639969
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '42f0241a1907'
-down_revision: Union[str, Sequence[str], None] = None
+revision: str = '23b5363994d5'
+down_revision: Union[str, Sequence[str], None] = '559247d9576b'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -24,6 +24,7 @@ def upgrade() -> None:
     op.create_table('category',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_category_id'), 'category', ['id'], unique=False)
@@ -31,10 +32,12 @@ def upgrade() -> None:
     op.create_table('suppliers',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=True),
-    sa.Column('contact_info', sa.Integer(), nullable=True),
+    sa.Column('contact_info', sa.String(), nullable=True),
+    sa.Column('email', sa.String(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_suppliers_contact_info'), 'suppliers', ['contact_info'], unique=False)
+    op.create_index(op.f('ix_suppliers_email'), 'suppliers', ['email'], unique=True)
     op.create_index(op.f('ix_suppliers_id'), 'suppliers', ['id'], unique=False)
     op.create_index(op.f('ix_suppliers_name'), 'suppliers', ['name'], unique=False)
     op.create_table('users',
@@ -59,6 +62,7 @@ def upgrade() -> None:
     sa.Column('suppliers_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('quantity', sa.Integer(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['category_id'], ['category.id'], ),
     sa.ForeignKeyConstraint(['suppliers_id'], ['suppliers.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
@@ -80,7 +84,8 @@ def upgrade() -> None:
     sa.Column('quantity', sa.Integer(), nullable=False),
     sa.Column('type', sa.String(), nullable=False),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.Column('contact_info', sa.Integer(), nullable=True),
+    sa.Column('contact_info', sa.String(), nullable=True),
+    sa.Column('total_price', sa.Float(), nullable=False),
     sa.ForeignKeyConstraint(['product_id'], ['products.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -107,6 +112,7 @@ def downgrade() -> None:
     op.drop_table('users')
     op.drop_index(op.f('ix_suppliers_name'), table_name='suppliers')
     op.drop_index(op.f('ix_suppliers_id'), table_name='suppliers')
+    op.drop_index(op.f('ix_suppliers_email'), table_name='suppliers')
     op.drop_index(op.f('ix_suppliers_contact_info'), table_name='suppliers')
     op.drop_table('suppliers')
     op.drop_index(op.f('ix_category_name'), table_name='category')
