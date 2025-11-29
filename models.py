@@ -23,6 +23,7 @@ class Supplier(Base):
     contact_info = Column(String, index=True)
     products = relationship("Product",back_populates="suppliers")
     email=(Column(String, unique= True, nullable= False, index= True))
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 class Product(Base):
     __tablename__ = 'products'
     id = Column(Integer, primary_key=True, index=True)

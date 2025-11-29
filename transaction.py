@@ -51,9 +51,10 @@ def create_transaction(transaction: TransactionCreate, db: Session = Depends(get
         raise HTTPException(status_code=400, detail="Invalid transaction type")
 # commit changes to the database
     db.add(new_transaction)
+    db.add(product)
     db.commit()
     db.refresh(new_transaction)
-    return new_transaction
+    return TransactionResponse.model_validate(new_transaction, from_attributes=True).model_dump()
 @router.get("/by-date/{query_date}", response_model=List[TransactionResponse])
 def get_transactions_by_date(query_date: date, db:Session = Depends(get_db)):
     transactions = db.query(Transaction).filter(
@@ -61,4 +62,7 @@ def get_transactions_by_date(query_date: date, db:Session = Depends(get_db)):
     ).all()
     if not transactions:
         raise HTTPException(status_code=404, detail="No transaction found for this date")
-    return transactions
+    return [
+       TransactionResponse.model_validate(t, from_attributes=True).model_dump()
+       for t in transactions
+    ]

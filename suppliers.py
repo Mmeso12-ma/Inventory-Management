@@ -6,11 +6,17 @@ from models import Supplier
 from schemas import SupplierCreate, SupplierResponse
 router = APIRouter(prefix="/suppliers", tags=["suppliers"])
 @router.post("/", response_model=SupplierResponse)
-def create_supplier(supplier: SupplierCreate, db: Session = Depends(get_db)):
-    existing_supplier = db.query(Supplier).filter(Supplier.name == supplier.name).first()
+def create_supplier(payloa: SupplierCreate, db: Session = Depends(get_db)):
+    if not payloa.email:
+        raise HTTPException(status_code=400, detail="Email is required.")
+    existing_supplier = db.query(Supplier).filter(Supplier.email == payloa.email).first()
     if existing_supplier:
-        raise HTTPException(status_code=400, detail="Supplier with this name already exists.")
-    new_supplier = Supplier(name=supplier.name, contact_info=supplier.contact_info)
+        raise HTTPException(status_code=400, detail="Supplier with this email already exists.")
+    new_supplier = Supplier(
+        name=payloa.name,
+        contact_info=payloa.contact_info,
+        email=payloa.email
+    )
     db.add(new_supplier)
     db.commit()
     db.refresh(new_supplier)

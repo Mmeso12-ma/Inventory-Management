@@ -35,15 +35,15 @@ def monthly_report(year: int, month: int, db: Session = Depends(get_db)):
         func.extract('month', Transaction.timestamp) == month
     ).all()
     products = db.query(Product).filter(func.extract('year', Product.created_at) == year,
-        func.extract('month', Product.created_at) == month)
+        func.extract('month', Product.created_at) == month).all()
     suppliers = db.query(Supplier).filter(
         func.extract('year', Supplier.created_at) == year,  
         func.extract('month', Supplier.created_at) == month
-    )
+    ).all()
     categories= db.query(Category).filter(
         func.extract('year', Category.created_at) == year,
         func.extract('month', Category.created_at) == month
-    )
+    ).all()
     total_sales = sum(t.total_price for t in transactions if t.type == 'sale')
     total_purchases = sum(t.total_price for t in transactions if t.type == 'purchase')
     return{
@@ -51,10 +51,32 @@ def monthly_report(year: int, month: int, db: Session = Depends(get_db)):
     "month": month,
     "total_sales": total_sales,
     "total_purchases": total_purchases,
-    "transactions": transactions,
-    "products": products,
-    "suppliers": suppliers,
-    "categories": categories
+    "transactions": [{
+        "id": t.id,
+        "product_name": t.product_name,
+        "quantity": t.quantity,
+        "type": t.type,
+        "total_price": t.total_price,
+        "timestamp": t.timestamp.isoformat() if t.timestamp else None
+    } for t in transactions],
+    "products": [{
+        "id": p.id,
+        "name": p.name,
+        "quantity": p.quantity,
+        "price": p.price,
+        "created_at": p.created_at.isoformat() if p.created_at else None
+        } for p in products],
+    "suppliers": [{
+        "id": s.id,
+        "name": s.name,
+        "contact_info": s.contact_info,
+        "created_at": s.created_at.isoformat() if s.created_at else None
+    }  for s in suppliers],
+    "categories": [{
+        "id": c.id,
+        "name": c.name,
+        "created_at": c.created_at.isoformat() if c.created_at else None
+    } for c in categories]
 }   
 @router.get("/yearly/{year}")
 def yearly_report(year: int, db: Session = Depends(get_db)):

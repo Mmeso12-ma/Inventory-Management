@@ -48,10 +48,12 @@ class SupplierBase(BaseModel):
 class SupplierCreate(BaseModel):
     name: str
     contact_info : str
+    email:EmailStr
 class SupplierResponse(BaseModel):
     id: int
     name: str
     contact_info: str | None = None
+    email: EmailStr
     class Config:
         from_attributes = True
 class UserBase(BaseModel):
