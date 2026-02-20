@@ -4,9 +4,10 @@ from typing import List
 from database import get_db
 from models import Supplier
 from schemas import SupplierCreate, SupplierResponse
+import auth
+from auth import require_role
 router = APIRouter(prefix="/suppliers", tags=["suppliers"])
-@router.post("/", response_model=SupplierResponse)
-def create_supplier(payloa: SupplierCreate, db: Session = Depends(get_db)):
+def create_supplier(payloa: SupplierCreate, db: Session = Depends(get_db) ):
     if not payloa.email:
         raise HTTPException(status_code=400, detail="Email is required.")
     existing_supplier = db.query(Supplier).filter(Supplier.email == payloa.email).first()
@@ -21,27 +22,29 @@ def create_supplier(payloa: SupplierCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_supplier)
     return new_supplier
-@router.get("/", response_model=List[SupplierResponse])
+@router.post("/", response_model=SupplierResponse, dependencies=[Depends(require_role(["admin"]))])
 def get_suppliers(db: Session = Depends(get_db)):
     suppliers = db.query(Supplier).all()
     return suppliers
-@router.get("/{supplier_name}", response_model=SupplierResponse)
+@router.get("/{supplier_name}", response_model=SupplierResponse, dependencies=[Depends(require_role(["admin"]))])
 def get_supplier(supplier_name: str, db: Session = Depends(get_db)):
     supplier = db.query(Supplier).filter(Supplier.name == supplier_name).first()
     if not supplier:
         raise HTTPException(status_code=404, detail="Supplier not found.")
     return supplier
-@router.put("/{supplier_name}", response_model=SupplierResponse)
+@router.put("/{supplier_name}", response_model=SupplierResponse, dependencies=[Depends(require_role(["admin"]))])
 def update_supplier(supplier_name: str, supplier_update: SupplierCreate, db: Session = Depends(get_db)):
     supplier = db.query(Supplier).filter(Supplier.name == supplier_name).first()
     if not supplier:
         raise HTTPException(status_code=404, detail="Supplier not found.")
-    supplier.name = supplier_update.name
-    supplier.contact_info = supplier_update.contact_info
+    db.query(Supplier).filter(Supplier.name == supplier_name).update({
+        Supplier.name: supplier_update.name,
+        Supplier.contact_info: supplier_update.contact_info
+    })
     db.commit()
-    db.refresh(supplier)
+    supplier = db.query(Supplier).filter(Supplier.name == supplier_update.name).first()
     return supplier
-@router.delete("/{supplier_name}")
+@router.delete("/{supplier_name}", dependencies=[Depends(require_role(["admin"]))])
 def delete_supplier(supplier_name: str, db: Session = Depends(get_db)):
     supplier = db.query(Supplier).filter(Supplier.name == supplier_name).first()
     if not supplier:

@@ -5,12 +5,18 @@ from fastapi.security import OAuth2PasswordRequestForm
 from schemas import UserCreate, Token, UserOut
 from sqlalchemy.orm import Session
 from database import get_db
-from security import create_access_token, verify_password, hash_password
+from security import create_access_token, get_current_user, verify_password, hash_password
 from models import User
 from datetime import timedelta
 from config import settings
 router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/register", response_model=UserOut)
+def require_role(allowed_roles: list):
+    def role_checker(current_user: User = Depends(get_current_user)):
+        if current_user.role not in allowed_roles:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Operation not permitted")
+        return current_user
+    return role_checker
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter((User.username == user.username) | (User.email == user.email)).first()
     if db_user:

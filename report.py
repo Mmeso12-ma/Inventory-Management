@@ -8,8 +8,10 @@ from sqlalchemy import func
 from models import Product, Transaction, Category, Supplier
 import suppliers
 import transaction
+import auth
+from auth import require_role
 router = APIRouter(prefix="/reports", tags=["reports"])
-@router.get("/daily/{query_date}")
+@router.get("/daily/{query_date}", dependencies=[Depends(require_role(["admin"]))])
 def daily_report(query_date: date, db: Session = Depends(get_db)):
     transactions = db.query(Transaction).filter(
         func.date(Transaction.timestamp) == query_date
@@ -17,8 +19,8 @@ def daily_report(query_date: date, db: Session = Depends(get_db)):
     products = db.query(Product).all()
     suppliers = db.query(Supplier).all()
     categories= db.query(Category).all()
-    total_sales = sum(t.total_price for t in transactions if t.type == 'sale')
-    total_purchases = sum(t.total_price for t in transactions if t.type == 'purchase')
+    total_sales = sum(t.total_price for t in transactions if t.type == "sale")
+    total_purchases = sum(t.total_price for t in transactions if t.type == "purchase")
     return{
     "date": query_date,
     "total_sales": total_sales,
@@ -28,7 +30,7 @@ def daily_report(query_date: date, db: Session = Depends(get_db)):
     "suppliers": suppliers,
     "categories": categories
 }
-@router.get("/monthly/{year}/{month}")
+@router.get("/monthly/{year}/{month}", dependencies=[Depends(require_role(["admin"]))])
 def monthly_report(year: int, month: int, db: Session = Depends(get_db)):
     transactions = db.query(Transaction).filter(
         func.extract('year', Transaction.timestamp) == year,
@@ -44,8 +46,8 @@ def monthly_report(year: int, month: int, db: Session = Depends(get_db)):
         func.extract('year', Category.created_at) == year,
         func.extract('month', Category.created_at) == month
     ).all()
-    total_sales = sum(t.total_price for t in transactions if t.type == 'sale')
-    total_purchases = sum(t.total_price for t in transactions if t.type == 'purchase')
+    total_sales = sum(t.total_price for t in transactions if t.type == "sale")
+    total_purchases = sum(t.total_price for t in transactions if t.type == "purchase")
     return{
     "year": year,
     "month": month,
@@ -78,7 +80,7 @@ def monthly_report(year: int, month: int, db: Session = Depends(get_db)):
         "created_at": c.created_at.isoformat() if c.created_at else None
     } for c in categories]
 }   
-@router.get("/yearly/{year}")
+@router.get("/yearly/{year}", dependencies=[Depends(require_role(["admin"]))])
 def yearly_report(year: int, db: Session = Depends(get_db)):
     transactions=db.query(Transaction).filter(
         func.extract('year', Transaction.timestamp) == year
@@ -92,8 +94,8 @@ def yearly_report(year: int, db: Session = Depends(get_db)):
     categories= db.query(Category).filter(
         func.extract('year', Category.created_at) == year
     ).all()
-    total_sales = sum(t.total_price for t in transactions if t.type == 'sale')
-    total_purchases = sum(t.total_price for t in transactions if t.type == 'purchase')
+    total_sales = sum(t.total_price for t in transactions if t.type == "sale")
+    total_purchases = sum(t.total_price for t in transactions if t.type == "purchase")
     return{
     "year": year,
     "total_sales": total_sales,

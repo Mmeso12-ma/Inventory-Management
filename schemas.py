@@ -58,17 +58,17 @@ class SupplierResponse(BaseModel):
         from_attributes = True
 class UserBase(BaseModel):
     email:EmailStr
-   
+    
 class UserCreate(UserBase):
     email: EmailStr
     username: str
     password: str
-    role : str 
+    role : Optional[str] 
 class UserOut(UserBase):
     id: int
     is_active:bool
     email: EmailStr
-    role:str
+    role:Optional[str]
     class Config:
         from_attributes = True
  
