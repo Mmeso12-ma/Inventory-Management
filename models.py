@@ -1,4 +1,5 @@
 from email.policy import default
+from operator import is_
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime, Boolean, Table
 from database import Base
 from sqlalchemy.orm import relationship
@@ -59,5 +60,13 @@ class User(Base):
     email= Column(String, unique= True, nullable= False, index= True)
     products = relationship("Product", back_populates="user")
     role= Column(String, nullable= False, default= 'clerk')
+class Employee(Base):
+    __tablename__= 'employee'
+    id = Column(Integer, primary_key=True, index=True, nullable=False)
+    name = Column(String, index=True, nullable=False)
+    position = Column(String, index=True, nullable=False)
+    contact_info = Column(String, index=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    is_active = Column(Boolean, default=True)
 
 
