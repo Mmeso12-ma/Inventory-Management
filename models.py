@@ -28,7 +28,7 @@ class Supplier(Base):
 class Product(Base):
     __tablename__ = 'products'
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
+    name = Column(String, index=True, unique=True)
     description = Column(String, index=True)
     price = Column(Float, index=True)
     category_id = Column(Integer, ForeignKey('category.id'))
@@ -68,5 +68,14 @@ class Employee(Base):
     contact_info = Column(String, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     is_active = Column(Boolean, default=True)
+class StockMovement(Base):
+    __tablename__ = 'stock_movement'
+    id = Column(Integer, primary_key=True, index=True)
+    product_name = Column(String, ForeignKey('products.name'), nullable=False)
+    quantity_change = Column(Integer, nullable=False)
+    movement_type = Column(String, nullable=False)  # 'in' or 'out'
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    user_name = Column(String, ForeignKey('users.username'), nullable=False)
+
 
 
