@@ -28,7 +28,7 @@ def delete_product(db: Session, product_name:str):
     return db_product
 #Transaction CRUD operations
 def create_transaction(db: Session, transaction:schemas.TransactionCreate):
-    db_transaction = models.Transaction(product_id=transaction.product_id, quantity=transaction.quantity, type=transaction.type)
+    db_transaction = models.Transaction(product_name=transaction.product_name, quantity=transaction.quantity, type=transaction.type)
     db.add(db_transaction)
     db.commit()
     db.refresh(db_transaction)
