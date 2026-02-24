@@ -75,4 +75,18 @@ def get_all_product_stocks(db: Session):
        stock = (product.quantity if getattr (product, "quantity", None) is not None else (total_in - total_out))
        stock_report.append({'product_id': product.id, 'product_name': product.name, 'stock': stock, 'total_in': total_in, 'total_out': total_out})
    return stock_report
-
+def stock_handle(db:Session, product_name:str, product_quantity:int, transaction_type:str):
+    product = db.query(models.Product).filter(models.Product.name == product_name).first()
+    if not product:
+        return None
+    if product_quantity <= 0:
+        raise ValueError("Quantity must be positive")
+    if transaction_type == TRANSACTION_IN:
+        product.quantity = product.quantity + product_quantity
+    elif transaction_type == TRANSACTION_OUT:
+        if int(product.quantity) < product_quantity:
+            raise ValueError("Insufficient stock for sale")
+        product.quantity = product.quantity - product_quantity
+    db.commit()
+    return product
+    
