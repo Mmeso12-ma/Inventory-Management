@@ -71,7 +71,12 @@ class UserOut(UserBase):
     role:Optional[str]
     class Config:
         from_attributes = True
- 
+class StockResponse(BaseModel):
+    product_id: int
+    product_name: str
+    stock: int
+    total_in: int
+    total_out: int
 
 class Token(BaseModel):
     access_token: str

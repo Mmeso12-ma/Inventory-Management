@@ -4,13 +4,15 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Product, Transaction
-from schemas import TransactionCreate, TransactionResponse
+from schemas import TransactionCreate, TransactionResponse, StockResponse
 from datetime import datetime, date
 from typing import List
 import math
 import decimal
+import auth
+from auth import require_role
 router = APIRouter(prefix="/transactions", tags=["transactions"])
-@router.post("/", response_model=TransactionResponse)
+@router.post("/", response_model=TransactionResponse, dependencies=[Depends(require_role(["admin", "staff"]))])
 def create_transaction(transaction: TransactionCreate, db: Session = Depends(get_db)):
     try:
         qty = int(transaction.quantity)
@@ -55,7 +57,7 @@ def create_transaction(transaction: TransactionCreate, db: Session = Depends(get
     db.commit()
     db.refresh(new_transaction)
     return TransactionResponse.model_validate(new_transaction, from_attributes=True).model_dump()
-@router.get("/by-date/{query_date}", response_model=List[TransactionResponse])
+@router.get("/by-date/{query_date}", response_model=List[TransactionResponse], dependencies=[Depends(require_role(["admin"]))])
 def get_transactions_by_date(query_date: date, db:Session = Depends(get_db)):
     transactions = db.query(Transaction).filter(
         func.date(Transaction.timestamp) == query_date
@@ -66,3 +68,33 @@ def get_transactions_by_date(query_date: date, db:Session = Depends(get_db)):
        TransactionResponse.model_validate(t, from_attributes=True).model_dump()
        for t in transactions
     ]
+@router.get("/", response_model=List[StockResponse], dependencies=[Depends(require_role(["admin", "staff"]))])
+def get_all_stock(db:Session = Depends(get_db)):
+    products = db.query(Product).all()
+    transactions = db.query(Transaction).all()
+    product_map = {p.name: p for p in products}
+    stock_report = []
+    for t in transactions:
+        product = product_map.get(t.product_name)
+        if not product:
+            continue
+        stock_report.append({
+            'product_id': product.id,
+            'product_name': product.name,
+            'stock': product.quantity if getattr(product, "quantity", None) is not None else 0,
+            'total_in': sum(t.quantity for t in product.transaction if t.type == 'purchase'),
+            'total_out': sum(t.quantity for t in product.transaction if t.type == 'sale')
+        })
+    return stock_report
+@router.get("/product/{product_name}", response_model=StockResponse, dependencies=[Depends(require_role(["admin", "staff"]))])
+def get_stock_for_product(product_name:str, db:Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.name == product_name).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return {
+        'product_id': product.id,
+        'product_name': product.name,
+        'stock': product.quantity if getattr(product, "quantity", None) is not None else 0,
+        'total_in': sum(t.quantity for t in product.transaction if t.type == 'purchase'),
+        'total_out': sum(t.quantity for t in product.transaction if t.type == 'sale')
+    }
